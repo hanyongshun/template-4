@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ggec.template.repository.UserDao">
+	<!--
+		获取用户: 输出直接映射到对象, login_name列要"as loginName"以方便映射 ,team_id as "team.id"创建team对象并赋值
+	-->
+	<select id="get" parameterType="long" resultType="User">
+		select id, 
+		login_name as loginName,
+		name,
+		password,
+		salt,
+		roles,
+		register_date as registerDate,
+		create_time as createTime,
+		update_time as updateTime
+		from tt_user
+		where id=#{id}
+	</select>
+
+	<!-- 查询用户,演示: 1.输入用map传入多个参数 2.<where>语句, 智能添加where和and关键字 3.输出直接映射对象 -->
+	<select id="search" parameterType="map" resultType="User">
+		select id, 
+		login_name as loginName,
+		name,
+		password,
+		salt,
+		roles,
+		register_date as registerDate,
+		create_time as createTime,
+		update_time as updateTime
+		from tt_user
+		<where>
+			<if test="loginName != null">
+				login_name=#{loginName}
+			</if>
+			<if test="name != null">
+				and name=#{name}
+			</if>
+		</where>
+	</select>
+
+	<!-- 插入用户： 1.由数据库生成id并赋值到user对象 -->
+	<insert id="save" parameterType="User" useGeneratedKeys="true" keyProperty="id">
+		insert into tt_user ( login_name, name, password, salt, roles, register_date,create_time)
+		values (
+		 #{loginName}, #{name}, #{password}, #{salt},#{roles},#{registerDate},#{createTime})
+	</insert>
+	
+	<update id="update" parameterType="User">
+	  update tt_user
+	   <set>
+	       <if test="name != null">
+	          name=#{name},
+	       </if>
+	       <if test="password != null">
+	          password=#{password},
+	       </if>
+	       <if test="salt != null">
+	          salt=#{salt},
+	       </if>
+	       <if test="roles != null">
+	           roles = #{roles}
+	       </if>
+	   </set>
+	    where id=#{id}
+	
+	</update>
+	
+	
+	<!-- 删除用户 -->
+	<delete id="delete" parameterType="long">
+	     delete from tt_user where id=#{id}
+	</delete>
+	
+	<!--查询所有-->
+	<select id="findAll" resultType="User">
+		select id, 
+		login_name as loginName,
+		name,
+		password,
+		salt,
+		roles,
+		register_date as registerDate,
+		create_time as createTime,
+		update_time as updateTime
+		from tt_user
+	</select>
+	
+	<!--查询所有-->
+	<select id="findOne" parameterType="long" resultType="User">
+		select id, 
+		login_name as loginName,
+		name,
+		password,
+		salt,
+		roles,
+		register_date as registerDate,
+		create_time as createTime,
+		update_time as updateTime
+		from tt_user 
+		where id=#{id}
+	</select>
+	
+	<select id="findByLoginName" parameterType="string" resultType="User">
+	   select id, 
+		login_name as loginName,
+		name,
+		password,
+		salt,
+		roles,
+		register_date as registerDate,
+		create_time as createTime,
+		update_time as updateTime
+		from tt_user 
+		where login_name=#{loginName}
+	</select>
+	
+</mapper> 

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ggec.template.repository.TaskDao">
+	
+	<resultMap id="taskDetailMap" type="Task">
+		<id property="id" column="task_id" />
+		<result property="title" column="title" />
+		<result property="description" column="description" />
+		
+		<association property="user" column="userId" javaType="User">
+			<id property="id" column="userId" />
+			<result property="loginName" column="loginName" />
+			<result property="name" column="userName" />
+			<result property="password" column="password" />
+			<result property="roles" column="userRoles" />
+		</association>
+	</resultMap>
+
+	<!-- 获取部门详细信息, 输出用resultMap关联嵌套对象 -->
+	<select id="findByUserId" parameterType="long" resultMap="taskDetailMap">
+		select t.id as task_id,
+		t.title,
+		t.description,
+		t.user_id as userId,
+		u.login_name as loginName,
+		u.name as userName,
+		u.password as password,
+		u.roles as userRoles
+		from tt_task t, tt_user u
+		where t.user_id=u.id and u.id=#{id}
+	</select>
+	
+	<select id="findAll" resultMap="taskDetailMap">
+      select t.id as task_id,
+		t.title,
+		t.description,
+		t.user_id as userId,
+		u.login_name as loginName,
+		u.name as userName,
+		u.password as password,
+		u.roles as userRoles
+	   from tt_task t, tt_user u
+	   where t.user_id=u.id 
+	</select>
+	
+	
+	<select id="findOne" parameterType="long" resultMap="taskDetailMap">
+	   select t.id as task_id,
+		t.title,
+		t.description,
+		t.user_id as userId,
+		u.login_name as loginName,
+		u.name as userName,
+		u.password as password,
+		u.roles as userRoles
+	   from tt_task t, tt_user u
+	   where t.user_id=u.id and t.id=#{id}
+	</select>
+	
+	<insert id="save" parameterType="Task" useGeneratedKeys="true" keyProperty="id">
+	  insert into tt_task (title,description,user_id)
+	  values (#{title},#{description},#{user.id})
+	</insert>
+	
+	<delete id="delete" parameterType="long">
+	   delete from tt_task where id=#{id}
+	</delete>
+	
+	<delete id="deleteByUserId" parameterType="long">
+	   delete from tt_task where user_id=#{id}
+	</delete>
+	     
+    <select id="getRows"  resultType="int">
+        select count(id) from tt_task where 1=1
+          <if test="searchParams.title != null and searchParams.title != ''">
+           and title like #{searchParams.title}
+          </if>
+          <if test="userId !=null">
+           and  user_id=#{userId}
+          </if>         
+    </select>	
+    
+    <select id="findAllByUser"  resultMap="taskDetailMap">
+    
+    select tt.task_id,tt.title,tt.description,tt.userId,tt.loginName,tt.userName,tt.password,
+           tt.userRoles
+     from(
+     select row_number()over(order by tc) as rownumber,* from (
+      select top (#{pageNumber}*#{pageSize}) tc=0,
+        t.id as task_id,
+		t.title,
+		t.description,
+		t.user_id as userId,
+		u.login_name as loginName,
+		u.name as userName,
+		u.password as password,
+		u.roles as userRoles
+	    from tt_task t, tt_user u where 1=1
+        <if test="searchParams.title != null and searchParams.title != ''">
+          and t.title like #{searchParams.title}
+        </if>
+          <if test="userId !=null">
+          and  t.user_id=#{userId}
+          </if>  
+         )t )tt where rownumber>(#{pageNumber}-1)
+                 
+    </select>	
+         
+	
+</mapper> 
