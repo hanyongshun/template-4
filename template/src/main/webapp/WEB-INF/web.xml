@@ -8,7 +8,9 @@
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
 			classpath*:/applicationContext.xml,
-			classpath*:/applicationContext-shiro.xml
+			classpath*:/applicationContext-shiro.xml,
+			classpath*:/applicationContext-monitoring.xml,
+			classpath:net/bull/javamelody/monitoring-spring-aspectj.xml<!--和spring集成时添加-->			
 		</param-value>
 	</context-param>
 	<context-param>
@@ -62,6 +64,26 @@
 		<filter-name>sitemeshFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
+	
+	
+	 <!-- javamelody -->
+	    <filter>
+                <filter-name>monitoring</filter-name>
+                <filter-class>net.bull.javamelody.MonitoringFilter</filter-class>
+                 <init-param>
+                        <param-name>log</param-name>
+                        <param-value>true</param-value>
+                </init-param>
+        </filter>
+        <filter-mapping>
+                <filter-name>monitoring</filter-name>
+                <url-pattern>/monitoring</url-pattern>
+        </filter-mapping>
+        <listener>
+                <listener-class>net.bull.javamelody.SessionListener</listener-class>
+        </listener>
+	
+	 <!-- javamelody -->
 
 	<servlet>
 		<servlet-name>springServlet</servlet-name>
